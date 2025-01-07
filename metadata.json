@@ -1,0 +1,10 @@
+
+{
+    "uuid": "github-stats@aaron-jung.com",
+    "name": "Github Stats",
+    "description": "Extension to show the github stats in the topbar of linux fedora gnome.",
+    "version": 1,
+    "shell-version": ["47.2"],
+    "url": "https://github.com/aajuu19/github-stats-gnome",
+    "settings-schema": "org.gnome.shell.extensions.github-stats"
+}
