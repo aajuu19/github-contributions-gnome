@@ -9,31 +9,31 @@ let _contributionExtension = null;
 class ContributionExtension extends PanelMenu.Button {
   constructor() {
     // 0.0 is the menu alignment, “GitHub Contributions” is the accessible name
-    super(0.0, "GitHub Contributions");
+    super(0.0, 'GitHub Contributions');
 
     // You can use any icon from icon theme or create your own
     const icon = new St.Icon({
-      icon_name: "avatar-default-symbolic",
-      style_class: "system-status-icon",
+      icon_name: 'avatar-default-symbolic',
+      style_class: 'system-status-icon'
     });
 
     this.add_child(icon);
 
     // Add items to the drop-down menu
     // We’ll later populate these or update them with real data
-    this._streakItem = new PopupMenu.PopupMenuItem("Streaks: Loading...");
+    this._streakItem = new PopupMenu.PopupMenuItem('Streaks: Loading...');
     this.menu.addMenuItem(this._streakItem);
 
     // Separator
     this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-    this._todayItem = new PopupMenu.PopupMenuItem("Today: Loading...");
+    this._todayItem = new PopupMenu.PopupMenuItem('Today: Loading...');
     this.menu.addMenuItem(this._todayItem);
 
-    this._monthItem = new PopupMenu.PopupMenuItem("This Month: Loading...");
+    this._monthItem = new PopupMenu.PopupMenuItem('This Month: Loading...');
     this.menu.addMenuItem(this._monthItem);
 
-    this._yearItem = new PopupMenu.PopupMenuItem("Year: Loading...");
+    this._yearItem = new PopupMenu.PopupMenuItem('Year: Loading...');
     this.menu.addMenuItem(this._yearItem);
 
     // Fetch data on init
@@ -64,13 +64,13 @@ class ContributionExtension extends PanelMenu.Button {
     // Required for some Gnome versions
     Soup.Session.prototype.add_feature.call(
       session,
-      new Soup.ProxyResolverDefault(),
+      new Soup.ProxyResolverDefault()
     );
 
-    const message = Soup.Message.new("POST", "https://api.github.com/graphql");
-    message.request_headers.append("Content-Type", "application/json");
+    const message = Soup.Message.new('POST', 'https://api.github.com/graphql');
+    message.request_headers.append('Content-Type', 'application/json');
     // Replace <TOKEN> with your actual personal token
-    message.request_headers.append("Authorization", "Bearer <my-token>");
+    message.request_headers.append('Authorization', 'Bearer <my-token>');
 
     // JSON body
     const body = JSON.stringify({ query: baseQuery });
@@ -84,7 +84,7 @@ class ContributionExtension extends PanelMenu.Button {
         try {
           const responseBytes = session.send_and_read_finish(res);
           const responseBody = new TextDecoder().decode(
-            responseBytes.get_data(),
+            responseBytes.get_data()
           );
           const json = JSON.parse(responseBody);
 
@@ -92,7 +92,7 @@ class ContributionExtension extends PanelMenu.Button {
           const contributionCalendar =
             json.data.user.contributionsCollection.contributionCalendar;
           if (!contributionCalendar) {
-            log("No contribution calendar data found");
+            log('No contribution calendar data found');
             return;
           }
 
@@ -124,7 +124,7 @@ class ContributionExtension extends PanelMenu.Button {
         } catch (e) {
           logError(e);
         }
-      },
+      }
     );
   }
 
@@ -162,7 +162,7 @@ class ContributionExtension extends PanelMenu.Button {
 
   _getMonthContributions(contributionDays) {
     const firstOfMonth = this._formatDate(
-      new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      new Date(new Date().getFullYear(), new Date().getMonth(), 1)
     );
     return contributionDays
       .filter((d) => d.date >= firstOfMonth)
@@ -182,8 +182,8 @@ class ContributionExtension extends PanelMenu.Button {
   _formatDate(date) {
     // Return 'YYYY-MM-DD'
     const yyyy = date.getFullYear();
-    const mm = (date.getMonth() + 1).toString().padStart(2, "0");
-    const dd = date.getDate().toString().padStart(2, "0");
+    const mm = (date.getMonth() + 1).toString().padStart(2, '0');
+    const dd = date.getDate().toString().padStart(2, '0');
     return `${yyyy}-${mm}-${dd}`;
   }
 }
@@ -197,10 +197,10 @@ function enable() {
   // Called when extension is enabled by user
   _contributionExtension = new ContributionExtension();
   Main.panel.addToStatusArea(
-    "github-contributions",
+    'github-contributions',
     _contributionExtension,
     0,
-    "right",
+    'right'
   );
 }
 
