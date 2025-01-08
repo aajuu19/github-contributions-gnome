@@ -2,7 +2,7 @@
 <schemalist>
   <schema id="org.gnome.shell.extensions.github-stats" path="/org/gnome/shell/extensions/github-stats/">
     <key type="s" name="github-token">
-      <default>''</default>
+    <default>''</default>
       <summary>GitHub Personal Access Token</summary>
       <description>Your GitHub API token for fetching contributions.</description>
     </key>
