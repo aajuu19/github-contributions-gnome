@@ -5,11 +5,8 @@ const PopupMenu = imports.ui.popupMenu;
 const Gio = imports.gi.Gio;
 const Soup = imports.gi.Soup;
 const GLib = imports.gi.GLib;
-const Lang = imports.lang;
 
-// Replace with your actual GitHub username and token
-const GITHUB_USERNAME = "aajuu19";
-const GITHUB_TOKEN = "YOUR_GITHUB_TOKEN";
+const GITHUB_USERNAME = "aajuu19"; // Replace with your GitHub username
 
 const BASE_QUERY = `
 {
@@ -30,8 +27,8 @@ const BASE_QUERY = `
 `;
 
 class GitHubContributionsIndicator extends PanelMenu.Button {
-  constructor() {
-    super(0.0, "GitHub Contributions", false);
+  constructor(token) {
+    super(0.0, "GitHub Stats", false);
 
     // Create the label
     this.label = new St.Label({
@@ -48,21 +45,27 @@ class GitHubContributionsIndicator extends PanelMenu.Button {
     this.yearContributions = 0;
 
     // Fetch data initially
-    this.fetchData();
+    this.fetchData(token);
 
     // Refresh data every hour
     GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 3600, () => {
-      this.fetchData();
+      this.fetchData(token);
       return GLib.SOURCE_CONTINUE;
     });
   }
 
-  fetchData() {
+  fetchData(token) {
     let session = new Soup.Session();
     let message = Soup.Message.new("POST", "https://api.github.com/graphql");
     message.request_headers.append("Content-Type", "application/json");
-    message.request_headers.append("Authorization", `Bearer ${GITHUB_TOKEN}`);
-    message.set_request('{"query": `' + BASE_QUERY + "`}");
+    message.request_headers.append("Authorization", `Bearer ${token}`);
+    const body = JSON.stringify({ query: BASE_QUERY });
+    message.set_request(
+      "application/json",
+      Soup.MemoryUse.COPY,
+      body,
+      body.length,
+    );
 
     session.queue_message(message, (session, message) => {
       if (message.status_code === 200) {
@@ -82,7 +85,7 @@ class GitHubContributionsIndicator extends PanelMenu.Button {
     );
     const today = new Date().toISOString().split("T")[0];
 
-    // Implement your utility functions to calculate stats
+    // Calculate statistics
     this.todayContributions = this.getContributionsByDate(
       contributionDays,
       (date) => date === today,
@@ -101,7 +104,7 @@ class GitHubContributionsIndicator extends PanelMenu.Button {
       `🔥 ${this.currentStreak} 🍎 ${this.longestStreak} 💪 ${this.todayContributions} 📊 ${this.yearContributions}`,
     );
 
-    // Optionally, update the dropdown menu with detailed stats
+    // Update the dropdown menu
     this.updateMenu(contributionDays);
   }
 
@@ -112,7 +115,6 @@ class GitHubContributionsIndicator extends PanelMenu.Button {
   }
 
   calculateStreak(contributionDays) {
-    // Implement your streak calculation logic here
     let currentStreak = 0;
     let longestStreak = 0;
     let streak = 0;
@@ -172,15 +174,24 @@ class GitHubContributionsIndicator extends PanelMenu.Button {
   }
 }
 
+let indicator = null;
+
 function init() {
-  // Initialization code if needed
+  log("Github Stats Extension Initialized");
 }
 
-let indicator;
-
 function enable() {
-  indicator = new GitHubContributionsIndicator();
-  Main.panel.addToStatusArea("github-contributions", indicator);
+  // Initialize GSettings
+  let settings = Gio.Settings.new("org.gnome.shell.extensions.github-stats");
+  let token = settings.get_string("github-token");
+
+  if (!token) {
+    log("GitHub token not set. Please set it using gsettings.");
+    return;
+  }
+
+  indicator = new GitHubContributionsIndicator(token);
+  Main.panel.addToStatusArea("github-stats", indicator);
 }
 
 function disable() {
