@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.github-contributions" path="/org/gnome/shell/extensions/github-contributions/">
+    <key type="s" name="github-token">
+      <default>'YOUR_GITHUB_TOKEN'</default>
+      <summary>GitHub Personal Access Token</summary>
+      <description>Your GitHub API token for fetching contributions.</description>
+    </key>
+  </schema>
+</schemalist>
+
